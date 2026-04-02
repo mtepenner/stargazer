@@ -28,7 +28,7 @@ Stargazer is an Augmented Reality (AR) Android application designed to help user
 ## Installation 💻
 1. Clone the repository to your local machine:
    ```bash
-   git clone [https://github.com/yourusername/stargazer.git](https://github.com/yourusername/stargazer.git)
+   git clone https://github.com/mtepenner/stargazer.git
    ```
 2. Open the project in **Android Studio**.
 3. Sync the Gradle files to download the required dependencies (such as Compose and CameraX).
