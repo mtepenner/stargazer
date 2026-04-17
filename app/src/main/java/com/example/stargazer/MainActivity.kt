@@ -166,64 +166,58 @@ fun CameraView() {
 
 @Composable
 fun StarOverlay(phoneAzimuth: Float, phonePitch: Float) {
-    // We will create StarData.kt next to provide this data
     val stars = remember { StarData.getVisibleStars() }
-    
+
     // This value scales the degree differences into physical screen pixels.
     // 40f is a rough estimate for a standard mobile camera field of view.
-    val pixelsPerDegree = 40f 
+    val pixelsPerDegree = 40f
+
+    // Create Paint objects once per composition rather than on every draw call.
+    val starLabelPaint = remember {
+        android.graphics.Paint().apply {
+            color = android.graphics.Color.WHITE
+            textSize = 45f
+            isAntiAlias = true
+            setShadowLayer(8f, 0f, 0f, android.graphics.Color.BLACK)
+        }
+    }
+    val hudPaint = remember {
+        android.graphics.Paint().apply {
+            color = android.graphics.Color.GREEN
+            textSize = 45f
+            setShadowLayer(5f, 0f, 0f, android.graphics.Color.BLACK)
+        }
+    }
 
     Canvas(modifier = Modifier.fillMaxSize()) {
+        // Draw a targeting crosshair in the center of the screen
         val centerX = size.width / 2
         val centerY = size.height / 2
-
-        // Draw a targeting crosshair in the center of the screen
         drawLine(Color.Red, Offset(centerX - 30f, centerY), Offset(centerX + 30f, centerY), strokeWidth = 3f)
         drawLine(Color.Red, Offset(centerX, centerY - 30f), Offset(centerX, centerY + 30f), strokeWidth = 3f)
 
         stars.forEach { star ->
-            // Calculate the shortest angular distance (handles the 360 to 0 wrap-around at North)
-            var deltaAzimuth = star.azimuth - phoneAzimuth
-            if (deltaAzimuth > 180f) deltaAzimuth -= 360f
-            if (deltaAzimuth < -180f) deltaAzimuth += 360f
+            val (screenX, screenY) = AstroMath.calculateScreenPosition(
+                star, phoneAzimuth, phonePitch, pixelsPerDegree, size.width, size.height
+            )
 
-            // Calculate altitude difference (invert because screen Y goes down, but altitude goes up)
-            val deltaPitch = phonePitch - star.altitude 
-
-            // Project the angular difference onto the 2D screen coordinate system
-            val screenX = centerX + (deltaAzimuth * pixelsPerDegree)
-            val screenY = centerY + (deltaPitch * pixelsPerDegree)
-
-            // Optimization: Only render the star and text if it's generally within the screen bounds
-            if (screenX in -300f..(size.width + 300f) && screenY in -300f..(size.height + 300f)) {
-                
-                // Draw the star
+            // Only render the star and label if it is close enough to the visible area.
+            if (AstroMath.isWithinRenderBounds(screenX, screenY, size.width, size.height)) {
                 drawCircle(color = Color.White, radius = 12f, center = Offset(screenX, screenY))
-                
-                // Draw the star's name next to it
                 drawContext.canvas.nativeCanvas.drawText(
                     star.name,
                     screenX + 20f,
                     screenY + 15f,
-                    android.graphics.Paint().apply {
-                        color = android.graphics.Color.WHITE
-                        textSize = 45f
-                        isAntiAlias = true
-                        setShadowLayer(8f, 0f, 0f, android.graphics.Color.BLACK) // Adds a drop shadow for visibility over the camera
-                    }
+                    starLabelPaint
                 )
             }
         }
-        
-        // Heads Up Display (HUD): Show raw sensor values for debugging
+
+        // Heads-Up Display (HUD): show raw sensor values for debugging.
         drawContext.canvas.nativeCanvas.drawText(
             "Heading: ${phoneAzimuth.toInt()}° | Tilt: ${phonePitch.toInt()}°",
             50f, 120f,
-            android.graphics.Paint().apply { 
-                color = android.graphics.Color.GREEN
-                textSize = 45f 
-                setShadowLayer(5f, 0f, 0f, android.graphics.Color.BLACK)
-            }
+            hudPaint
         )
     }
 }
