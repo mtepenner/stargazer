@@ -2,7 +2,7 @@ package com.example.stargazer
 
 /**
  * Represents a celestial body in the sky using a Horizontal Coordinate System.
- * * @param name The display name of the star or planet.
+ * @param name The display name of the star or planet.
  * @param azimuth The compass direction in degrees (0 = North, 90 = East, 180 = South, 270 = West).
  * @param altitude The tilt angle in degrees (0 = Horizon, 90 = Zenith/Straight Up).
  */
