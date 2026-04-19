@@ -8,6 +8,7 @@ Stargazer is an Augmented Reality (AR) Android application designed to help user
 - [Technologies Used](#technologies-used)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Verification](#verification)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -39,6 +40,27 @@ Stargazer is an Augmented Reality (AR) Android application designed to help user
 1. **Permissions:** Upon launching the app for the first time, grant the requested Camera and Location permissions.
 2. **Explore the Sky:** Hold your phone up and move it around. The app will display a live camera feed with an AR overlay.
 3. **Identify Markers:** You will see mock celestial bodies (e.g., "North Star", "Zenith") anchored to their correct compass directions and altitudes in the sky.
+
+## Verification
+
+### Automated checks (verified)
+
+Run unit tests from the project root:
+
+```powershell
+.\gradlew.bat :app:testDebugUnitTest --no-daemon
+```
+
+Latest local run: **30 tests passed, 0 failures**.
+
+### Device checks (manual)
+
+The following behavior requires running on a physical Android device:
+
+- Camera preview appears after Camera permission is granted.
+- Heading and tilt values update in the on-screen HUD as device orientation changes.
+- Mock markers (North/East/South/West/Zenith) remain directionally stable while rotating/tilting the device.
+- App requests and handles Camera + Location permissions on first launch.
 
 ## Contributing 🤝
 Contributions are welcome! If you'd like to help improve Stargazer, please follow these steps:
